@@ -19,14 +19,9 @@ jobs:
             const title = context.payload.issue.title || '';
             const hasGithubLink = /github\.com\/[A-Za-z0-9-]+/i.test(body + ' ' + title);
 
-            await github.rest.issues.addLabels({
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              issue_number: context.issue.number,
-              labels: ['join-request']
-            });
-
             if (hasGithubLink) {
+              // join-request label already applied by the issue form template.
+              // This comment confirms the request is in the queue.
               await github.rest.issues.createComment({
                 owner: context.repo.owner,
                 repo: context.repo.repo,
@@ -34,11 +29,12 @@ jobs:
                 body: "Got your join request. Sitting in the review queue. You'll get an invite once it's looked over."
               });
             } else {
+              // Fallback for issues opened without the form template.
               await github.rest.issues.addLabels({
                 owner: context.repo.owner,
                 repo: context.repo.repo,
                 issue_number: context.issue.number,
-                labels: ['needs-info']
+                labels: ['join-request', 'needs-info']
               });
               await github.rest.issues.createComment({
                 owner: context.repo.owner,

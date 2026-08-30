@@ -1,0 +1,16 @@
+﻿name: "🚀 Request to Join"
+description: "Request an invite to the NEMSU Devs org"
+title: "Join Request: <Your Name>"
+labels: ["join-request"]
+body:
+  - type: markdown
+    attributes:
+      value: "Welcome! Fill out this quick form to request an invite."
+  - type: input
+    id: github-link
+    attributes:
+      label: GitHub Profile Link
+      description: "Paste the link to your GitHub profile so we can invite you."
+      placeholder: "https://github.com/yourusername"
+    validations:
+      required: true

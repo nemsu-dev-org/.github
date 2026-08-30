@@ -21,7 +21,12 @@ jobs:
           github-token: ${{ secrets.ORG_ADMIN_TOKEN }}
           script: |
             const body = context.payload.issue.body || '';
-            const match = body.match(/github\.com\/([A-Za-z0-9-]+)/i);
+
+            // Issue form generates: "### GitHub Profile Link\n\nhttps://github.com/username"
+            // Parse that section first; fall back to a plain regex for freeform issues.
+            const formSection = body.match(/###\s*GitHub Profile Link\s*\n+([^\n]+)/i);
+            const searchText = formSection ? formSection[1].trim() : body;
+            const match = searchText.match(/github\.com\/([A-Za-z0-9-]+)/i);
 
             if (!match) {
               await github.rest.issues.createComment({
@@ -34,7 +39,6 @@ jobs:
             }
 
             const username = match[1];
-            // TODO: replace with the org's real account name
             const orgName = 'nemsu-dev-org';
 
             try {
