@@ -52,7 +52,7 @@ $ ./join-nemsu-devs.sh
 > Welcome to NEMSU Devs 404. No refunds, only commits.
 ```
 
-[![Open an Issue](https://img.shields.io/badge/Join_Now-Open_an_Issue-2ea44f?style=for-the-badge&logo=github)](../../issues/new)
+[![Open an Issue](https://img.shields.io/badge/Join_Now-Open_an_Issue-2ea44f?style=for-the-badge&logo=github)](../../../issues/new)
 
 ---
 
