@@ -1,0 +1,49 @@
+name: Handle Join Requests
+
+on:
+  issues:
+    types: [opened]
+
+permissions:
+  issues: write
+
+jobs:
+  label-and-greet:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Label and greet new join request
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const body = context.payload.issue.body || '';
+            const title = context.payload.issue.title || '';
+            const hasGithubLink = /github\.com\/[A-Za-z0-9-]+/i.test(body + ' ' + title);
+
+            await github.rest.issues.addLabels({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.issue.number,
+              labels: ['join-request']
+            });
+
+            if (hasGithubLink) {
+              await github.rest.issues.createComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: context.issue.number,
+                body: "Got your join request. Sitting in the review queue. You'll get an invite once it's looked over."
+              });
+            } else {
+              await github.rest.issues.addLabels({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: context.issue.number,
+                labels: ['needs-info']
+              });
+              await github.rest.issues.createComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: context.issue.number,
+                body: "No GitHub profile link found in your request. Edit the issue to add it (e.g. github.com/yourusername) and it'll be picked up for review."
+              });
+            }

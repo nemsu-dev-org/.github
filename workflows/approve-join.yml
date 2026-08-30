@@ -1,0 +1,70 @@
+name: Approve Join Request
+
+on:
+  issue_comment:
+    types: [created]
+
+permissions:
+  issues: write
+
+jobs:
+  approve:
+    if: >
+      contains(github.event.comment.body, '/approve') &&
+      (github.event.comment.author_association == 'OWNER' ||
+       github.event.comment.author_association == 'COLLABORATOR')
+    runs-on: ubuntu-latest
+    steps:
+      - name: Invite requester to the org and close the issue
+        uses: actions/github-script@v7
+        with:
+          # Needs a PAT with admin:org scope. The default GITHUB_TOKEN
+          # cannot send org invitations.
+          github-token: ${{ secrets.ORG_ADMIN_TOKEN }}
+          script: |
+            const body = context.payload.issue.body || '';
+            const match = body.match(/github\.com\/([A-Za-z0-9-]+)/i);
+
+            if (!match) {
+              await github.rest.issues.createComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: context.issue.number,
+                body: "No GitHub username found in the issue body. Add the profile link, then run `/approve` again."
+              });
+              return;
+            }
+
+            const username = match[1];
+            // TODO: replace with the org's real account name
+            const orgName = 'nemsu-dev-org';
+
+            try {
+              const user = await github.rest.users.getByUsername({ username });
+              await github.rest.orgs.createInvitation({
+                org: orgName,
+                invitee_id: user.data.id
+              });
+            } catch (err) {
+              await github.rest.issues.createComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: context.issue.number,
+                body: `Invite failed for @${username}: ${err.message}. Send it manually from the org members page.`
+              });
+              return;
+            }
+
+            await github.rest.issues.createComment({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.issue.number,
+              body: `Invite sent to @${username}. Closing this issue.`
+            });
+
+            await github.rest.issues.update({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.issue.number,
+              state: 'closed'
+            });
