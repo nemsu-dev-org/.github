@@ -22,7 +22,7 @@ An open group for **NEMSU** students who like coding. CpE, CS, IT, it does not m
 
 <img src="https://skillicons.dev/icons?i=python,java,cpp,js,ts,html,css,c,cs,go,rust,php" />
 <br>
-<sub><i>...or whatever else you write in. Yes, even in Machine Language.</i></sub>
+<sub><i>...or whatever else you write in. Yes, even in <b>Machine Language</b>.</i></sub>
 
 </td>
 <td width="50%" valign="top">
